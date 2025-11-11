@@ -1,8 +1,0 @@
-services:
-  - type: web
-    name: tiktok-api-dll
-    env: node
-    region: singapore
-    buildCommand: "npm install"
-    startCommand: "npm start"
-    plan: free
