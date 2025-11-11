@@ -30,8 +30,11 @@ app.get("/download", async (req, res) => {
       "Referer": "https://tiktokdown.online/",
       "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36"
     };
+
     const response = await axios.post(UPSTREAM, payload, { headers });
-    res.json(response.data);
+
+    // Return full raw Axios response (not just response.data)
+    res.json(response);
   } catch (error) {
     console.error("❌ Error fetching TikTok data:", error.message);
     res.status(error.response?.status || 500).json({
