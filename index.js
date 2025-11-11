@@ -19,7 +19,7 @@ app.get("/download", async (req, res) => {
   }
 
   try {
-    const payload = { video_url: videoUrl, video_id: videoUrl };
+    const payload = { video_url: videoUrl };
     const headers = {
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br",
