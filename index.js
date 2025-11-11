@@ -9,14 +9,15 @@ app.use(express.json());
 const UPSTREAM = "https://comp1640.pythonanywhere.com/api/tiktok";
 
 app.get("/", (req, res) => {
-  res.send("TikTok API Proxy is running!");
+  res.send("🔥 TikTok API Proxy by ItachiXD is running!");
 });
 
 app.get("/download", async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) {
     return res.status(400).json({
-      status: "error",
+      success: false,
+      author: "ItachiXD",
       message: "Missing ?url= parameter",
     });
   }
@@ -31,31 +32,27 @@ app.get("/download", async (req, res) => {
       "Content-Type": "application/json",
       "Origin": "https://tiktokdown.online",
       "Referer": "https://tiktokdown.online/",
-      "User-Agent":
-        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
+      "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36"
     };
 
     const response = await axios.post(UPSTREAM, payload, { headers });
 
-    // ✅ Return only safe and useful parts of the response
     res.json({
       success: true,
       status: response.status,
       author: "ItachiXD",
-      data: response.data,
+      data: response.data
     });
+
   } catch (error) {
     console.error("❌ Error fetching TikTok data:", error.message);
-
     res.status(error.response?.status || 500).json({
-      status: "error",
+      success: false,
+      author: "ItachiXD",
       message: "Upstream API error",
-      upstream: error.response?.data || error.message,
+      error: error.response?.data || error.message,
     });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 TikTok API running on port ${PORT}`)
-);
+module.exports = app; // Important for Vercel
