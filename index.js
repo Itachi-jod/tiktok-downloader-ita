@@ -15,11 +15,14 @@ app.get("/", (req, res) => {
 app.get("/download", async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) {
-    return res.status(400).json({ status: "error", message: "Missing ?url= parameter" });
+    return res.status(400).json({
+      status: "error",
+      message: "Missing ?url= parameter",
+    });
   }
 
   try {
-    const payload = { video_url: videoUrl };
+    const payload = { video_url: videoUrl, video_id: videoUrl };
     const headers = {
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br",
@@ -28,15 +31,22 @@ app.get("/download", async (req, res) => {
       "Content-Type": "application/json",
       "Origin": "https://tiktokdown.online",
       "Referer": "https://tiktokdown.online/",
-      "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36"
+      "User-Agent":
+        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
     };
 
     const response = await axios.post(UPSTREAM, payload, { headers });
 
-    // Return full raw Axios response (not just response.data)
-    res.json(response);
+    // ✅ Return only safe and useful parts of the response
+    res.json({
+      success: true,
+      status: response.status,
+      author: "ItachiXD",
+      data: response.data,
+    });
   } catch (error) {
     console.error("❌ Error fetching TikTok data:", error.message);
+
     res.status(error.response?.status || 500).json({
       status: "error",
       message: "Upstream API error",
@@ -46,4 +56,6 @@ app.get("/download", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`TikTok API running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 TikTok API running on port ${PORT}`)
+);
