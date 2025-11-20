@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 });
 
 // MAIN API
-app.get("/api/tiktok", async (req, res) => {
+app.get("/api/download", async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) {
     return res.status(400).json({
