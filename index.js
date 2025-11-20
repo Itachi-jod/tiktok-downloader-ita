@@ -6,53 +6,69 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const UPSTREAM = "https://comp1640.pythonanywhere.com/api/tiktok";
+// Always pretty-print JSON (2 spaces)
+app.set("json spaces", 2);
 
+// NEW UPSTREAM from DevTools
+const UPSTREAM = "https://tools.xrespond.com/api/social/all/downloader";
+
+// ROOT ENDPOINT
 app.get("/", (req, res) => {
-  res.send("🔥 TikTok API Proxy by ItachiXD is running!");
+  res.json({
+    message: "TikTok Downloader API is running!",
+    author: "ItachiXD",
+    endpoints: ["/api/download?url="]
+  });
 });
 
-app.get("/download", async (req, res) => {
+// MAIN API
+app.get("/api/tiktok", async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) {
     return res.status(400).json({
       success: false,
-      author: "ItachiXD",
-      message: "Missing ?url= parameter",
+      message: "Missing ?url parameter",
     });
   }
 
   try {
-    const payload = { video_url: videoUrl, video_id: videoUrl };
+    const formData = new URLSearchParams();
+    formData.append("url", videoUrl);
+
     const headers = {
       "Accept": "*/*",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Accept-Language": "en-US,en;q=0.9",
-      "Connection": "keep-alive",
-      "Content-Type": "application/json",
-      "Origin": "https://tiktokdown.online",
-      "Referer": "https://tiktokdown.online/",
-      "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36"
+      "Origin": "https://downsocial.io",
+      "Referer": "https://downsocial.io/",
+      "User-Agent":
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+      "Content-Type": "application/x-www-form-urlencoded",
     };
 
-    const response = await axios.post(UPSTREAM, payload, { headers });
+    const response = await axios.post(UPSTREAM, formData, { headers });
+
+    // Fix escaping
+    let data = response.data;
+    let fixed = JSON.stringify(data).replace(/\\\//g, "/");
+    fixed = JSON.parse(fixed);
 
     res.json({
       success: true,
-      status: response.status,
-      author: "ItachiXD",
-      data: response.data
+      source: "Itachi Sensei",
+      data: fixed.data || fixed,
     });
 
-  } catch (error) {
-    console.error("❌ Error fetching TikTok data:", error.message);
-    res.status(error.response?.status || 500).json({
+  } catch (err) {
+    res.status(500).json({
       success: false,
-      author: "ItachiXD",
-      message: "Upstream API error",
-      error: error.response?.data || error.message,
+      message: "Upstream error",
+      error: err.response?.data || err.message,
     });
   }
 });
 
-module.exports = app; // Important for Vercel
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =>
+  console.log(`🔥 TikTok API running on http://localhost:${PORT}`)
+);
+
+module.exports = app;
