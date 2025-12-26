@@ -1,17 +1,9 @@
 {
-  "name": "snaptik-api",
+  "name": "tiktok-downloader",
   "version": "1.0.0",
-  "description": "SnapTik Downloader API",
+  "type": "commonjs",
   "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "author": "ItachiXD",
-  "license": "MIT",
   "dependencies": {
-    "axios": "latest",
-    "cors": "latest",
-    "express": "latest",
-    "querystring": "latest"
+    "axios": "^1.6.8"
   }
 }
