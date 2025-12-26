@@ -1,15 +1,17 @@
 {
-  "name": "tiktok-downloader-api",
+  "name": "musicaldown-api",
   "version": "1.0.0",
+  "description": "MusicalDown Downloader API by ItachiXD",
   "main": "index.js",
-  "type": "commonjs",
-  "author": "ItachiXD",
-  "dependencies": {
-    "axios": "^1.6.8",
-    "cors": "^2.8.5",
-    "express": "^4.19.2"
-  },
   "scripts": {
     "start": "node index.js"
+  },
+  "author": "ItachiXD",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "querystring": "latest"
   }
 }
