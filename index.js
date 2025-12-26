@@ -1,74 +1,83 @@
 const express = require("express");
 const axios = require("axios");
+const qs = require("querystring");
 const cors = require("cors");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Always pretty-print JSON (2 spaces)
-app.set("json spaces", 2);
+// Pretty print helper
+function pretty(obj) {
+  return JSON.stringify(obj, null, 2);
+}
 
-// NEW UPSTREAM from DevTools
-const UPSTREAM = "https://tools.xrespond.com/api/social/all/downloader";
-
-// ROOT ENDPOINT
+// Root route
 app.get("/", (req, res) => {
-  res.json({
-    message: "TikTok Downloader API is running!",
-    author: "ItachiXD",
-    endpoints: ["/api/download?url="]
-  });
+  res.setHeader("Content-Type", "application/json");
+  res.send(
+    pretty({
+      author: "ItachiXD",
+      status: "MusicalDown Downloader API Running...",
+      usage: "/api/download?url=VIDEO_URL",
+    })
+  );
 });
 
-// MAIN API
+// Main API
 app.get("/api/download", async (req, res) => {
   const videoUrl = req.query.url;
   if (!videoUrl) {
-    return res.status(400).json({
-      success: false,
-      message: "Missing ?url parameter",
-    });
+    res.setHeader("Content-Type", "application/json");
+    return res.status(400).send(
+      pretty({
+        author: "ItachiXD",
+        success: false,
+        error: "Missing ?url parameter",
+      })
+    );
   }
 
   try {
-    const formData = new URLSearchParams();
-    formData.append("url", videoUrl);
+    const postData = qs.stringify({ url: videoUrl });
 
     const headers = {
-      "Accept": "*/*",
-      "Origin": "https://downsocial.io",
-      "Referer": "https://downsocial.io/",
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "Accept": "application/json, text/javascript, */*; q=0.01",
       "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
-      "Content-Type": "application/x-www-form-urlencoded",
+        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36",
+      "Origin": "https://musicaldown.net",
+      "Referer": "https://musicaldown.net/",
+      "X-Requested-With": "XMLHttpRequest",
     };
 
-    const response = await axios.post(UPSTREAM, formData, { headers });
+    const apiRes = await axios.post(
+      "https://musicaldown.net/api/ajaxSearch",
+      postData,
+      { headers }
+    );
 
-    // Fix escaping
-    let data = response.data;
-    let fixed = JSON.stringify(data).replace(/\\\//g, "/");
-    fixed = JSON.parse(fixed);
-
-    res.json({
-      success: true,
-      source: "Itachi Sensei",
-      data: fixed.data || fixed,
-    });
-
+    res.setHeader("Content-Type", "application/json");
+    return res.send(
+      pretty({
+        author: "ItachiXD",
+        success: true,
+        data: apiRes.data,
+      })
+    );
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Upstream error",
-      error: err.response?.data || err.message,
-    });
+    console.error("Error:", err.response?.data || err.message);
+    res.setHeader("Content-Type", "application/json");
+    return res.status(500).send(
+      pretty({
+        author: "ItachiXD",
+        success: false,
+        error: "Failed to fetch video",
+        details: err.response?.data || err.message,
+      })
+    );
   }
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🔥 TikTok API running on http://localhost:${PORT}`)
-);
 
 module.exports = app;
