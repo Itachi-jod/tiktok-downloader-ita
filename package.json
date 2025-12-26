@@ -1,7 +1,7 @@
 {
-  "name": "musicaldown-api",
+  "name": "snaptik-api",
   "version": "1.0.0",
-  "description": "MusicalDown Downloader API by ItachiXD",
+  "description": "SnapTik Downloader API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
